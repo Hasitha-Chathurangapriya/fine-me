@@ -1,1 +1,855 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 
+<title>SME Shop Map</title>
+
+<link rel="stylesheet"
+href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+
+<style>
+
+*{
+    box-sizing:border-box;
+}
+
+body{
+    margin:0;
+    font-family:Arial,sans-serif;
+    background:#f5f7fa;
+}
+
+.sme-section{
+    padding:50px 20px;
+}
+
+.sme-container{
+    max-width:1200px;
+    margin:auto;
+}
+
+.header{
+    text-align:center;
+    margin-bottom:25px;
+}
+
+.header h2{
+    font-size:38px;
+    margin:0 0 8px;
+}
+
+.header p{
+    color:#6b7280;
+}
+
+
+/* SEARCH AREA */
+
+.search-area{
+    display:flex;
+    gap:10px;
+    max-width:750px;
+    margin:0 auto 25px;
+}
+
+.search-box{
+    position:relative;
+    flex:1;
+}
+
+.search-box input{
+    width:100%;
+    height:55px;
+    padding:0 20px 0 50px;
+    border:1px solid #ddd;
+    border-radius:14px;
+    background:white;
+    font-size:16px;
+    outline:none;
+}
+
+.search-icon{
+    position:absolute;
+    left:18px;
+    top:16px;
+    font-size:20px;
+}
+
+.location-btn{
+    height:55px;
+    padding:0 20px;
+    border:0;
+    border-radius:14px;
+    background:#2563eb;
+    color:white;
+    font-size:15px;
+    font-weight:bold;
+    cursor:pointer;
+    white-space:nowrap;
+}
+
+.location-btn:hover{
+    background:#1d4ed8;
+}
+
+
+/* STATUS */
+
+.location-status{
+    text-align:center;
+    margin:-10px auto 20px;
+    color:#64748b;
+    font-size:14px;
+}
+
+
+/* LAYOUT */
+
+.layout{
+    display:grid;
+    grid-template-columns:380px 1fr;
+    gap:20px;
+}
+
+
+/* LIST */
+
+.shop-list{
+    background:white;
+    border-radius:18px;
+    padding:15px;
+    height:600px;
+    overflow-y:auto;
+    box-shadow:0 8px 30px rgba(0,0,0,.08);
+}
+
+.shop-card{
+    padding:17px;
+    margin-bottom:12px;
+    border:1px solid #e5e7eb;
+    border-radius:14px;
+    cursor:pointer;
+    transition:.2s;
+}
+
+.shop-card:hover{
+    border-color:#2563eb;
+    box-shadow:0 6px 18px rgba(0,0,0,.07);
+}
+
+.shop-card.active{
+    border-color:#2563eb;
+    background:#eff6ff;
+}
+
+.shop-card h3{
+    margin:0 0 7px;
+    font-size:17px;
+}
+
+.category{
+    color:#2563eb;
+    font-weight:bold;
+    font-size:13px;
+}
+
+.address{
+    color:#64748b;
+    font-size:14px;
+    margin:7px 0;
+}
+
+.distance{
+    display:inline-block;
+    margin-top:5px;
+    padding:5px 9px;
+    border-radius:20px;
+    background:#eef2ff;
+    color:#3730a3;
+    font-size:12px;
+    font-weight:bold;
+}
+
+
+/* MAP */
+
+.map-wrapper{
+    background:white;
+    border-radius:18px;
+    overflow:hidden;
+    box-shadow:0 8px 30px rgba(0,0,0,.08);
+}
+
+#map{
+    width:100%;
+    height:600px;
+}
+
+
+/* POPUP */
+
+.popup h3{
+    margin:0 0 8px;
+}
+
+.popup p{
+    margin:5px 0;
+    font-size:13px;
+    color:#555;
+}
+
+.direction-btn{
+    display:inline-block;
+    margin-top:8px;
+    padding:8px 12px;
+    background:#2563eb;
+    color:white;
+    text-decoration:none;
+    border-radius:7px;
+    font-size:13px;
+}
+
+
+/* MOBILE */
+
+@media(max-width:850px){
+
+    .layout{
+        grid-template-columns:1fr;
+    }
+
+    .search-area{
+        flex-direction:column;
+    }
+
+    .location-btn{
+        width:100%;
+    }
+
+    .shop-list{
+        height:400px;
+    }
+
+    #map{
+        height:500px;
+    }
+
+    .header h2{
+        font-size:30px;
+    }
+}
+
+</style>
+</head>
+
+
+<body>
+
+
+<section class="sme-section">
+
+<div class="sme-container">
+
+
+    <div class="header">
+
+        <h2>SME Shop Network</h2>
+
+        <p>
+            Find businesses near you
+        </p>
+
+    </div>
+
+
+    <!-- SEARCH + LOCATION -->
+
+    <div class="search-area">
+
+        <div class="search-box">
+
+            <span class="search-icon">🔍</span>
+
+            <input
+                type="text"
+                id="search"
+                placeholder="Search shop, category or location..."
+            >
+
+        </div>
+
+
+        <button
+            class="location-btn"
+            onclick="findNearby()"
+        >
+            📍 Use My Location
+        </button>
+
+    </div>
+
+
+    <div
+        class="location-status"
+        id="locationStatus"
+    >
+        Showing shops around Bambalapitiya
+    </div>
+
+
+    <div class="layout">
+
+
+        <!-- SHOP LIST -->
+
+        <div
+            class="shop-list"
+            id="shopList"
+        ></div>
+
+
+        <!-- MAP -->
+
+        <div class="map-wrapper">
+
+            <div id="map"></div>
+
+        </div>
+
+
+    </div>
+
+</div>
+
+</section>
+
+
+
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+
+
+<script>
+
+/* ==========================================
+   MAP
+========================================== */
+
+const map = L.map("map")
+    .setView([6.8947,79.8560],14);
+
+
+L.tileLayer(
+    "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
+    {
+        attribution:
+        "&copy; OpenStreetMap contributors"
+    }
+).addTo(map);
+
+
+
+/* ==========================================
+   BAMBALAPITIYA SME SHOPS
+   SAMPLE DEMO LOCATIONS
+========================================== */
+
+const shops = [
+
+    {
+        id:1,
+        name:"Bambalapitiya Fashion Hub",
+        category:"Fashion",
+        address:"Galle Road, Bambalapitiya",
+        lat:6.8918,
+        lng:79.8567
+    },
+
+    {
+        id:2,
+        name:"Colombo Tech Solutions",
+        category:"Electronics",
+        address:"Duplication Road, Colombo 04",
+        lat:6.8915,
+        lng:79.8559
+    },
+
+    {
+        id:3,
+        name:"Bambalapitiya Grocery Mart",
+        category:"Grocery",
+        address:"Waidya Road, Bambalapitiya",
+        lat:6.8896,
+        lng:79.8582
+    },
+
+    {
+        id:4,
+        name:"Marine Drive Cafe",
+        category:"Cafe & Restaurant",
+        address:"Marine Drive, Colombo 04",
+        lat:6.8964,
+        lng:79.8506
+    },
+
+    {
+        id:5,
+        name:"Colombo Mobile Center",
+        category:"Mobile & Technology",
+        address:"Galle Road, Colombo 04",
+        lat:6.8942,
+        lng:79.8575
+    },
+
+    {
+        id:6,
+        name:"Bambalapitiya Pharmacy",
+        category:"Pharmacy",
+        address:"R. A. De Mel Mawatha",
+        lat:6.8885,
+        lng:79.8568
+    },
+
+    {
+        id:7,
+        name:"Duplication Road Bakery",
+        category:"Food & Bakery",
+        address:"Duplication Road, Colombo 04",
+        lat:6.8875,
+        lng:79.8550
+    },
+
+    {
+        id:8,
+        name:"Bambalapitiya Book Store",
+        category:"Books & Stationery",
+        address:"Galle Road, Colombo 04",
+        lat:6.8952,
+        lng:79.8587
+    },
+
+    {
+        id:9,
+        name:"Colombo Home Supplies",
+        category:"Home & Hardware",
+        address:"Kollupitiya Road",
+        lat:6.9000,
+        lng:79.8535
+    },
+
+    {
+        id:10,
+        name:"Bambalapitiya Beauty Studio",
+        category:"Beauty & Salon",
+        address:"Milagiriya Avenue, Colombo 04",
+        lat:6.8898,
+        lng:79.8620
+    }
+
+];
+
+
+/*
+ IMPORTANT:
+ Above are DEMO locations for testing the map.
+ Replace them with your actual SME shop data.
+*/
+
+
+/* ==========================================
+   MARKERS
+========================================== */
+
+const markers = {};
+
+shops.forEach(shop => {
+
+    const marker = L.marker([
+        shop.lat,
+        shop.lng
+    ]).addTo(map);
+
+
+    marker.bindPopup(`
+
+        <div class="popup">
+
+            <h3>${shop.name}</h3>
+
+            <p>
+                <strong>Category:</strong>
+                ${shop.category}
+            </p>
+
+            <p>
+                <strong>Address:</strong>
+                ${shop.address}
+            </p>
+
+            <a
+                class="direction-btn"
+                href="https://www.google.com/maps/dir/?api=1&destination=${shop.lat},${shop.lng}"
+                target="_blank"
+            >
+                Get Directions
+            </a>
+
+        </div>
+
+    `);
+
+
+    markers[shop.id] = marker;
+
+});
+
+
+
+/* ==========================================
+   DISTANCE FUNCTION
+========================================== */
+
+function distanceKm(
+    lat1,
+    lon1,
+    lat2,
+    lon2
+){
+
+    const R = 6371;
+
+    const dLat =
+        (lat2-lat1) *
+        Math.PI / 180;
+
+    const dLon =
+        (lon2-lon1) *
+        Math.PI / 180;
+
+
+    const a =
+        Math.sin(dLat/2) *
+        Math.sin(dLat/2)
+
+        +
+
+        Math.cos(
+            lat1*Math.PI/180
+        )
+        *
+        Math.cos(
+            lat2*Math.PI/180
+        )
+        *
+        Math.sin(dLon/2)
+        *
+        Math.sin(dLon/2);
+
+
+    const c =
+        2 *
+        Math.atan2(
+            Math.sqrt(a),
+            Math.sqrt(1-a)
+        );
+
+
+    return R*c;
+}
+
+
+
+/* ==========================================
+   DISPLAY SHOPS
+========================================== */
+
+function displayShops(data){
+
+    const list =
+        document.getElementById(
+            "shopList"
+        );
+
+    list.innerHTML="";
+
+
+    data.forEach(shop => {
+
+        const card =
+            document.createElement("div");
+
+
+        card.className="shop-card";
+
+        card.innerHTML=`
+
+            <h3>
+                ${shop.name}
+            </h3>
+
+            <div class="category">
+                ${shop.category}
+            </div>
+
+            <div class="address">
+                ${shop.address}
+            </div>
+
+            ${
+                shop.distance !== undefined
+                ?
+                `<span class="distance">
+                    📍 ${shop.distance.toFixed(2)} km away
+                </span>`
+                :
+                ""
+            }
+
+        `;
+
+
+        card.onclick=function(){
+
+            document
+            .querySelectorAll(".shop-card")
+            .forEach(c =>
+                c.classList.remove("active")
+            );
+
+
+            card.classList.add("active");
+
+
+            map.flyTo(
+                [shop.lat,shop.lng],
+                17,
+                {
+                    duration:1
+                }
+            );
+
+
+            markers[
+                shop.id
+            ].openPopup();
+
+        };
+
+
+        list.appendChild(card);
+
+    });
+
+}
+
+
+
+/* ==========================================
+   INITIAL
+========================================== */
+
+displayShops(shops);
+
+
+
+/* ==========================================
+   SEARCH
+========================================== */
+
+document
+.getElementById("search")
+.addEventListener(
+    "input",
+    function(){
+
+        const keyword =
+            this.value
+            .toLowerCase()
+            .trim();
+
+
+        const filtered =
+            shops.filter(shop =>
+
+                shop.name
+                .toLowerCase()
+                .includes(keyword)
+
+                ||
+
+                shop.category
+                .toLowerCase()
+                .includes(keyword)
+
+                ||
+
+                shop.address
+                .toLowerCase()
+                .includes(keyword)
+
+            );
+
+
+        displayShops(filtered);
+
+    }
+);
+
+
+
+/* ==========================================
+   USER LOCATION
+========================================== */
+
+let userMarker = null;
+
+
+function findNearby(){
+
+    const status =
+        document.getElementById(
+            "locationStatus"
+        );
+
+
+    if(!navigator.geolocation){
+
+        status.innerText =
+            "Your browser does not support location.";
+
+        return;
+    }
+
+
+    status.innerText =
+        "Getting your location...";
+
+
+    navigator.geolocation.getCurrentPosition(
+
+        function(position){
+
+            const userLat =
+                position.coords.latitude;
+
+            const userLng =
+                position.coords.longitude;
+
+
+            /* USER MARKER */
+
+            if(userMarker){
+
+                map.removeLayer(
+                    userMarker
+                );
+
+            }
+
+
+            userMarker =
+                L.marker(
+                    [userLat,userLng]
+                )
+                .addTo(map)
+                .bindPopup(
+                    "<strong>📍 You are here</strong>"
+                );
+
+
+            userMarker.openPopup();
+
+
+            /* CALCULATE DISTANCE */
+
+            const nearby =
+                shops.map(shop => {
+
+                    return {
+
+                        ...shop,
+
+                        distance:
+                        distanceKm(
+                            userLat,
+                            userLng,
+                            shop.lat,
+                            shop.lng
+                        )
+
+                    };
+
+                });
+
+
+            /* SORT NEAREST FIRST */
+
+            nearby.sort(
+                (a,b) =>
+                a.distance -
+                b.distance
+            );
+
+
+            /* DISPLAY */
+
+            displayShops(nearby);
+
+
+            /* MAP */
+
+            map.flyTo(
+                [userLat,userLng],
+                14,
+                {
+                    duration:1
+                }
+            );
+
+
+            status.innerText =
+                "📍 Showing nearest shops to your location";
+
+        },
+
+
+        function(error){
+
+            if(error.code === 1){
+
+                status.innerText =
+                    "Location permission was denied.";
+
+            }
+
+            else if(error.code === 2){
+
+                status.innerText =
+                    "Your location could not be detected.";
+
+            }
+
+            else{
+
+                status.innerText =
+                    "Unable to get your location.";
+
+            }
+
+        },
+
+        {
+            enableHighAccuracy:true,
+            timeout:10000,
+            maximumAge:0
+        }
+
+    );
+
+}
+
+</script>
+
+</body>
+</html>
