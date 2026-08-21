@@ -3,852 +3,643 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
 <title>SME Shop Map</title>
 
-<link rel="stylesheet"
-href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+<!-- Modern Font -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+<!-- Leaflet CSS -->
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
 
 <style>
-
-*{
-    box-sizing:border-box;
+:root {
+    --primary: #2563eb;
+    --primary-hover: #1d4ed8;
+    --primary-light: #eff6ff;
+    --text-main: #0f172a;
+    --text-muted: #64748b;
+    --bg-body: #f8fafc;
+    --bg-card: #ffffff;
+    --border: #e2e8f0;
+    --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+    --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+    --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+    --radius: 16px;
 }
 
-body{
-    margin:0;
-    font-family:Arial,sans-serif;
-    background:#f5f7fa;
+* {
+    box-sizing: border-box;
 }
 
-.sme-section{
-    padding:50px 20px;
+body {
+    margin: 0;
+    font-family: 'Inter', system-ui, -apple-system, sans-serif;
+    background: var(--bg-body);
+    color: var(--text-main);
+    line-height: 1.5;
+    -webkit-font-smoothing: antialiased;
 }
 
-.sme-container{
-    max-width:1200px;
-    margin:auto;
+.sme-section {
+    padding: 40px 20px 60px;
+    min-height: 100vh;
 }
 
-.header{
-    text-align:center;
-    margin-bottom:25px;
+.sme-container {
+    max-width: 1280px;
+    margin: auto;
 }
 
-.header h2{
-    font-size:38px;
-    margin:0 0 8px;
+/* HEADER */
+.header {
+    text-align: center;
+    margin-bottom: 32px;
 }
 
-.header p{
-    color:#6b7280;
+.header h2 {
+    font-size: 36px;
+    font-weight: 700;
+    margin: 0 0 8px;
+    letter-spacing: -0.025em;
+    color: var(--text-main);
 }
 
+.header p {
+    color: var(--text-muted);
+    font-size: 16px;
+    margin: 0;
+}
 
 /* SEARCH AREA */
-
-.search-area{
-    display:flex;
-    gap:10px;
-    max-width:750px;
-    margin:0 auto 25px;
+.search-area {
+    display: flex;
+    gap: 12px;
+    max-width: 700px;
+    margin: 0 auto 20px;
 }
 
-.search-box{
-    position:relative;
-    flex:1;
+.search-box {
+    position: relative;
+    flex: 1;
 }
 
-.search-box input{
-    width:100%;
-    height:55px;
-    padding:0 20px 0 50px;
-    border:1px solid #ddd;
-    border-radius:14px;
-    background:white;
-    font-size:16px;
-    outline:none;
+.search-box input {
+    width: 100%;
+    height: 56px;
+    padding: 0 20px 0 52px;
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    background: var(--bg-card);
+    font-size: 15px;
+    font-family: inherit;
+    outline: none;
+    transition: all 0.2s ease;
+    box-shadow: var(--shadow-sm);
 }
 
-.search-icon{
-    position:absolute;
-    left:18px;
-    top:16px;
-    font-size:20px;
+.search-box input:focus {
+    border-color: var(--primary);
+    box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.15);
 }
 
-.location-btn{
-    height:55px;
-    padding:0 20px;
-    border:0;
-    border-radius:14px;
-    background:#2563eb;
-    color:white;
-    font-size:15px;
-    font-weight:bold;
-    cursor:pointer;
-    white-space:nowrap;
+.search-box input::placeholder {
+    color: #94a3b8;
 }
 
-.location-btn:hover{
-    background:#1d4ed8;
+.search-icon {
+    position: absolute;
+    left: 18px;
+    top: 50%;
+    transform: translateY(-50%);
+    font-size: 18px;
+    color: var(--text-muted);
+    pointer-events: none;
 }
 
+.location-btn {
+    height: 56px;
+    padding: 0 24px;
+    border: 0;
+    border-radius: var(--radius);
+    background: var(--primary);
+    color: white;
+    font-size: 15px;
+    font-weight: 600;
+    font-family: inherit;
+    cursor: pointer;
+    white-space: nowrap;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    transition: all 0.2s ease;
+    box-shadow: var(--shadow-md);
+}
+
+.location-btn:hover {
+    background: var(--primary-hover);
+    transform: translateY(-1px);
+    box-shadow: var(--shadow-lg);
+}
+
+.location-btn:active {
+    transform: translateY(0);
+}
 
 /* STATUS */
-
-.location-status{
-    text-align:center;
-    margin:-10px auto 20px;
-    color:#64748b;
-    font-size:14px;
+.location-status {
+    text-align: center;
+    margin: 0 auto 24px;
+    color: var(--text-muted);
+    font-size: 14px;
+    font-weight: 500;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
 }
-
 
 /* LAYOUT */
-
-.layout{
-    display:grid;
-    grid-template-columns:380px 1fr;
-    gap:20px;
+.layout {
+    display: grid;
+    grid-template-columns: 400px 1fr;
+    gap: 24px;
+    align-items: start;
 }
 
-
-/* LIST */
-
-.shop-list{
-    background:white;
-    border-radius:18px;
-    padding:15px;
-    height:600px;
-    overflow-y:auto;
-    box-shadow:0 8px 30px rgba(0,0,0,.08);
+/* SHOP LIST */
+.shop-list {
+    background: var(--bg-card);
+    border-radius: var(--radius);
+    padding: 20px;
+    height: 650px;
+    overflow-y: auto;
+    box-shadow: var(--shadow-md);
+    border: 1px solid var(--border);
 }
 
-.shop-card{
-    padding:17px;
-    margin-bottom:12px;
-    border:1px solid #e5e7eb;
-    border-radius:14px;
-    cursor:pointer;
-    transition:.2s;
+/* Custom Scrollbar */
+.shop-list::-webkit-scrollbar {
+    width: 6px;
+}
+.shop-list::-webkit-scrollbar-track {
+    background: transparent;
+}
+.shop-list::-webkit-scrollbar-thumb {
+    background-color: #cbd5e1;
+    border-radius: 20px;
+}
+.shop-list::-webkit-scrollbar-thumb:hover {
+    background-color: #94a3b8;
 }
 
-.shop-card:hover{
-    border-color:#2563eb;
-    box-shadow:0 6px 18px rgba(0,0,0,.07);
+.shop-card {
+    padding: 18px;
+    margin-bottom: 12px;
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    background: var(--bg-card);
+    position: relative;
+    overflow: hidden;
+    animation: fadeIn 0.3s ease-out forwards;
 }
 
-.shop-card.active{
-    border-color:#2563eb;
-    background:#eff6ff;
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
 }
 
-.shop-card h3{
-    margin:0 0 7px;
-    font-size:17px;
+.shop-card::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    width: 4px;
+    background: var(--primary);
+    opacity: 0;
+    transition: opacity 0.2s ease;
 }
 
-.category{
-    color:#2563eb;
-    font-weight:bold;
-    font-size:13px;
+.shop-card:hover {
+    border-color: #bfdbfe;
+    box-shadow: var(--shadow-md);
+    transform: translateY(-2px);
 }
 
-.address{
-    color:#64748b;
-    font-size:14px;
-    margin:7px 0;
+.shop-card:hover::before {
+    opacity: 1;
 }
 
-.distance{
-    display:inline-block;
-    margin-top:5px;
-    padding:5px 9px;
-    border-radius:20px;
-    background:#eef2ff;
-    color:#3730a3;
-    font-size:12px;
-    font-weight:bold;
+.shop-card.active {
+    border-color: var(--primary);
+    background: var(--primary-light);
+    box-shadow: 0 0 0 1px var(--primary);
 }
 
+.shop-card.active::before {
+    opacity: 1;
+}
+
+.shop-card h3 {
+    margin: 0 0 6px;
+    font-size: 16px;
+    font-weight: 600;
+    color: var(--text-main);
+}
+
+.category {
+    color: var(--primary);
+    font-weight: 600;
+    font-size: 12px;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    margin-bottom: 8px;
+    display: inline-block;
+    background: var(--primary-light);
+    padding: 4px 8px;
+    border-radius: 6px;
+}
+
+.address {
+    color: var(--text-muted);
+    font-size: 14px;
+    margin: 0 0 12px;
+    display: flex;
+    align-items: flex-start;
+    gap: 6px;
+}
+
+.address::before {
+    content: '📍';
+    font-size: 12px;
+    flex-shrink: 0;
+    margin-top: 2px;
+}
+
+.distance {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    padding: 6px 10px;
+    border-radius: 20px;
+    background: #f1f5f9;
+    color: #475569;
+    font-size: 12px;
+    font-weight: 600;
+}
 
 /* MAP */
-
-.map-wrapper{
-    background:white;
-    border-radius:18px;
-    overflow:hidden;
-    box-shadow:0 8px 30px rgba(0,0,0,.08);
+.map-wrapper {
+    background: var(--bg-card);
+    border-radius: var(--radius);
+    overflow: hidden;
+    box-shadow: var(--shadow-md);
+    border: 1px solid var(--border);
+    position: sticky;
+    top: 20px;
 }
 
-#map{
-    width:100%;
-    height:600px;
+#map {
+    width: 100%;
+    height: 650px;
+    z-index: 1;
 }
 
-
-/* POPUP */
-
-.popup h3{
-    margin:0 0 8px;
+/* LEAFLET POPUP CUSTOMIZATION */
+.leaflet-popup-content-wrapper {
+    border-radius: 12px;
+    box-shadow: var(--shadow-lg);
+    padding: 0;
+    overflow: hidden;
+    border: 1px solid var(--border);
 }
 
-.popup p{
-    margin:5px 0;
-    font-size:13px;
-    color:#555;
+.leaflet-popup-content {
+    margin: 0;
+    width: 260px !important;
+    font-family: 'Inter', system-ui, sans-serif;
 }
 
-.direction-btn{
-    display:inline-block;
-    margin-top:8px;
-    padding:8px 12px;
-    background:#2563eb;
-    color:white;
-    text-decoration:none;
-    border-radius:7px;
-    font-size:13px;
+.leaflet-popup-tip {
+    box-shadow: var(--shadow-md);
+    background: var(--bg-card);
+    border: 1px solid var(--border);
 }
 
-
-/* MOBILE */
-
-@media(max-width:850px){
-
-    .layout{
-        grid-template-columns:1fr;
-    }
-
-    .search-area{
-        flex-direction:column;
-    }
-
-    .location-btn{
-        width:100%;
-    }
-
-    .shop-list{
-        height:400px;
-    }
-
-    #map{
-        height:500px;
-    }
-
-    .header h2{
-        font-size:30px;
-    }
+.leaflet-container a.leaflet-popup-close-button {
+    color: var(--text-muted);
+    padding: 8px 8px 0 0;
+    font-size: 20px;
+    font-weight: 300;
 }
 
+.leaflet-container a.leaflet-popup-close-button:hover {
+    color: var(--text-main);
+}
+
+.popup {
+    padding: 16px;
+}
+
+.popup h3 {
+    margin: 0 0 8px;
+    font-size: 16px;
+    font-weight: 600;
+    color: var(--text-main);
+}
+
+.popup p {
+    margin: 6px 0;
+    font-size: 13px;
+    color: var(--text-muted);
+    line-height: 1.4;
+}
+
+.popup p strong {
+    color: var(--text-main);
+    font-weight: 600;
+}
+
+.direction-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    margin-top: 12px;
+    padding: 10px 16px;
+    background: var(--primary);
+    color: white;
+    text-decoration: none;
+    border-radius: 8px;
+    font-size: 13px;
+    font-weight: 600;
+    transition: background 0.2s;
+    width: 100%;
+    text-align: center;
+}
+
+.direction-btn:hover {
+    background: var(--primary-hover);
+}
+
+/* MOBILE RESPONSIVENESS */
+@media (max-width: 900px) {
+    .sme-section {
+        padding: 24px 16px;
+    }
+
+    .layout {
+        grid-template-columns: 1fr;
+        gap: 20px;
+    }
+
+    .search-area {
+        flex-direction: column;
+    }
+
+    .location-btn {
+        width: 100%;
+    }
+
+    .shop-list {
+        height: 400px;
+        order: 2; /* List below map on mobile */
+    }
+
+    .map-wrapper {
+        position: relative;
+        top: 0;
+        order: 1; /* Map on top on mobile */
+    }
+
+    #map {
+        height: 450px;
+    }
+
+    .header h2 {
+        font-size: 28px;
+    }
+}
 </style>
 </head>
 
-
 <body>
 
-
 <section class="sme-section">
+    <div class="sme-container">
 
-<div class="sme-container">
-
-
-    <div class="header">
-
-        <h2>SME Shop Network</h2>
-
-        <p>
-            Find businesses near you
-        </p>
-
-    </div>
-
-
-    <!-- SEARCH + LOCATION -->
-
-    <div class="search-area">
-
-        <div class="search-box">
-
-            <span class="search-icon">🔍</span>
-
-            <input
-                type="text"
-                id="search"
-                placeholder="Search shop, category or location..."
-            >
-
+        <div class="header">
+            <h2>SME Shop Network</h2>
+            <p>Find local businesses and services near you</p>
         </div>
 
-
-        <button
-            class="location-btn"
-            onclick="findNearby()"
-        >
-            📍 Use My Location
-        </button>
-
-    </div>
-
-
-    <div
-        class="location-status"
-        id="locationStatus"
-    >
-        Showing shops around Bambalapitiya
-    </div>
-
-
-    <div class="layout">
-
-
-        <!-- SHOP LIST -->
-
-        <div
-            class="shop-list"
-            id="shopList"
-        ></div>
-
-
-        <!-- MAP -->
-
-        <div class="map-wrapper">
-
-            <div id="map"></div>
-
+        <!-- SEARCH + LOCATION -->
+        <div class="search-area">
+            <div class="search-box">
+                <span class="search-icon">🔍</span>
+                <input
+                    type="text"
+                    id="search"
+                    placeholder="Search shop, category or location..."
+                >
+            </div>
+            <button class="location-btn" onclick="findNearby()">
+                📍 Use My Location
+            </button>
         </div>
 
+        <div class="location-status" id="locationStatus">
+            Showing shops around Bambalapitiya
+        </div>
+
+        <div class="layout">
+            <!-- SHOP LIST -->
+            <div class="shop-list" id="shopList"></div>
+
+            <!-- MAP -->
+            <div class="map-wrapper">
+                <div id="map"></div>
+            </div>
+        </div>
 
     </div>
-
-</div>
-
 </section>
 
-
-
+<!-- Leaflet JS -->
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 
-
 <script>
-
 /* ==========================================
-   MAP
+   MAP INITIALIZATION
 ========================================== */
+const map = L.map("map").setView([6.8947, 79.8560], 14);
 
-const map = L.map("map")
-    .setView([6.8947,79.8560],14);
-
-
-L.tileLayer(
-    "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
-    {
-        attribution:
-        "&copy; OpenStreetMap contributors"
-    }
-).addTo(map);
-
-
+L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
+    attribution: '&copy; <a href="https://www.openstreetmap.org/copyright" style="color:#2563eb">OpenStreetMap</a> contributors'
+}).addTo(map);
 
 /* ==========================================
-   BAMBALAPITIYA SME SHOPS
    SAMPLE DEMO LOCATIONS
 ========================================== */
-
 const shops = [
-
-    {
-        id:1,
-        name:"Bambalapitiya Fashion Hub",
-        category:"Fashion",
-        address:"Galle Road, Bambalapitiya",
-        lat:6.8918,
-        lng:79.8567
-    },
-
-    {
-        id:2,
-        name:"Colombo Tech Solutions",
-        category:"Electronics",
-        address:"Duplication Road, Colombo 04",
-        lat:6.8915,
-        lng:79.8559
-    },
-
-    {
-        id:3,
-        name:"Bambalapitiya Grocery Mart",
-        category:"Grocery",
-        address:"Waidya Road, Bambalapitiya",
-        lat:6.8896,
-        lng:79.8582
-    },
-
-    {
-        id:4,
-        name:"Marine Drive Cafe",
-        category:"Cafe & Restaurant",
-        address:"Marine Drive, Colombo 04",
-        lat:6.8964,
-        lng:79.8506
-    },
-
-    {
-        id:5,
-        name:"Colombo Mobile Center",
-        category:"Mobile & Technology",
-        address:"Galle Road, Colombo 04",
-        lat:6.8942,
-        lng:79.8575
-    },
-
-    {
-        id:6,
-        name:"Bambalapitiya Pharmacy",
-        category:"Pharmacy",
-        address:"R. A. De Mel Mawatha",
-        lat:6.8885,
-        lng:79.8568
-    },
-
-    {
-        id:7,
-        name:"Duplication Road Bakery",
-        category:"Food & Bakery",
-        address:"Duplication Road, Colombo 04",
-        lat:6.8875,
-        lng:79.8550
-    },
-
-    {
-        id:8,
-        name:"Bambalapitiya Book Store",
-        category:"Books & Stationery",
-        address:"Galle Road, Colombo 04",
-        lat:6.8952,
-        lng:79.8587
-    },
-
-    {
-        id:9,
-        name:"Colombo Home Supplies",
-        category:"Home & Hardware",
-        address:"Kollupitiya Road",
-        lat:6.9000,
-        lng:79.8535
-    },
-
-    {
-        id:10,
-        name:"Bambalapitiya Beauty Studio",
-        category:"Beauty & Salon",
-        address:"Milagiriya Avenue, Colombo 04",
-        lat:6.8898,
-        lng:79.8620
-    }
-
+    { id: 1, name: "Bambalapitiya Fashion Hub", category: "Fashion", address: "Galle Road, Bambalapitiya", lat: 6.8918, lng: 79.8567 },
+    { id: 2, name: "Colombo Tech Solutions", category: "Electronics", address: "Duplication Road, Colombo 04", lat: 6.8915, lng: 79.8559 },
+    { id: 3, name: "Bambalapitiya Grocery Mart", category: "Grocery", address: "Waidya Road, Bambalapitiya", lat: 6.8896, lng: 79.8582 },
+    { id: 4, name: "Marine Drive Cafe", category: "Cafe & Restaurant", address: "Marine Drive, Colombo 04", lat: 6.8964, lng: 79.8506 },
+    { id: 5, name: "Colombo Mobile Center", category: "Mobile & Technology", address: "Galle Road, Colombo 04", lat: 6.8942, lng: 79.8575 },
+    { id: 6, name: "Bambalapitiya Pharmacy", category: "Pharmacy", address: "R. A. De Mel Mawatha", lat: 6.8885, lng: 79.8568 },
+    { id: 7, name: "Duplication Road Bakery", category: "Food & Bakery", address: "Duplication Road, Colombo 04", lat: 6.8875, lng: 79.8550 },
+    { id: 8, name: "Bambalapitiya Book Store", category: "Books & Stationery", address: "Galle Road, Colombo 04", lat: 6.8952, lng: 79.8587 },
+    { id: 9, name: "Colombo Home Supplies", category: "Home & Hardware", address: "Kollupitiya Road", lat: 6.9000, lng: 79.8535 },
+    { id: 10, name: "Bambalapitiya Beauty Studio", category: "Beauty & Salon", address: "Milagiriya Avenue, Colombo 04", lat: 6.8898, lng: 79.8620 }
 ];
-
-
-/*
- IMPORTANT:
- Above are DEMO locations for testing the map.
- Replace them with your actual SME shop data.
-*/
-
 
 /* ==========================================
    MARKERS
 ========================================== */
-
 const markers = {};
 
 shops.forEach(shop => {
-
-    const marker = L.marker([
-        shop.lat,
-        shop.lng
-    ]).addTo(map);
-
-
+    const marker = L.marker([shop.lat, shop.lng]).addTo(map);
+    
     marker.bindPopup(`
-
         <div class="popup">
-
             <h3>${shop.name}</h3>
-
-            <p>
-                <strong>Category:</strong>
-                ${shop.category}
-            </p>
-
-            <p>
-                <strong>Address:</strong>
-                ${shop.address}
-            </p>
-
-            <a
-                class="direction-btn"
-                href="https://www.google.com/maps/dir/?api=1&destination=${shop.lat},${shop.lng}"
-                target="_blank"
-            >
-                Get Directions
+            <p><strong>Category:</strong> ${shop.category}</p>
+            <p><strong>Address:</strong> ${shop.address}</p>
+            <a class="direction-btn" href="https://www.google.com/maps/dir/?api=1&destination=${shop.lat},${shop.lng}" target="_blank">
+                Get Directions →
             </a>
-
         </div>
-
     `);
-
-
+    
     markers[shop.id] = marker;
-
 });
 
-
-
 /* ==========================================
-   DISTANCE FUNCTION
+   DISTANCE FUNCTION (Haversine Formula)
 ========================================== */
-
-function distanceKm(
-    lat1,
-    lon1,
-    lat2,
-    lon2
-){
-
+function distanceKm(lat1, lon1, lat2, lon2) {
     const R = 6371;
-
-    const dLat =
-        (lat2-lat1) *
-        Math.PI / 180;
-
-    const dLon =
-        (lon2-lon1) *
-        Math.PI / 180;
-
-
-    const a =
-        Math.sin(dLat/2) *
-        Math.sin(dLat/2)
-
-        +
-
-        Math.cos(
-            lat1*Math.PI/180
-        )
-        *
-        Math.cos(
-            lat2*Math.PI/180
-        )
-        *
-        Math.sin(dLon/2)
-        *
-        Math.sin(dLon/2);
-
-
-    const c =
-        2 *
-        Math.atan2(
-            Math.sqrt(a),
-            Math.sqrt(1-a)
-        );
-
-
-    return R*c;
+    const dLat = (lat2 - lat1) * Math.PI / 180;
+    const dLon = (lon2 - lon1) * Math.PI / 180;
+    const a = Math.sin(dLat/2) * Math.sin(dLat/2) +
+              Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) *
+              Math.sin(dLon/2) * Math.sin(dLon/2);
+    const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+    return R * c;
 }
-
-
 
 /* ==========================================
    DISPLAY SHOPS
 ========================================== */
+function displayShops(data) {
+    const list = document.getElementById("shopList");
+    list.innerHTML = "";
 
-function displayShops(data){
+    if (data.length === 0) {
+        list.innerHTML = `<div style="text-align:center; padding:40px; color:#64748b;">No shops found matching your search.</div>`;
+        return;
+    }
 
-    const list =
-        document.getElementById(
-            "shopList"
-        );
-
-    list.innerHTML="";
-
-
-    data.forEach(shop => {
-
-        const card =
-            document.createElement("div");
-
-
-        card.className="shop-card";
-
-        card.innerHTML=`
-
-            <h3>
-                ${shop.name}
-            </h3>
-
-            <div class="category">
-                ${shop.category}
-            </div>
-
-            <div class="address">
-                ${shop.address}
-            </div>
-
-            ${
-                shop.distance !== undefined
-                ?
-                `<span class="distance">
-                    📍 ${shop.distance.toFixed(2)} km away
-                </span>`
-                :
-                ""
-            }
-
+    data.forEach((shop, index) => {
+        const card = document.createElement("div");
+        card.className = "shop-card";
+        card.style.animationDelay = `${index * 0.05}s`; // Staggered animation
+        
+        card.innerHTML = `
+            <h3>${shop.name}</h3>
+            <div class="category">${shop.category}</div>
+            <div class="address">${shop.address}</div>
+            ${shop.distance !== undefined ? `<span class="distance">📍 ${shop.distance.toFixed(2)} km away</span>` : ""}
         `;
 
-
-        card.onclick=function(){
-
-            document
-            .querySelectorAll(".shop-card")
-            .forEach(c =>
-                c.classList.remove("active")
-            );
-
-
+        card.onclick = function() {
+            document.querySelectorAll(".shop-card").forEach(c => c.classList.remove("active"));
             card.classList.add("active");
-
-
-            map.flyTo(
-                [shop.lat,shop.lng],
-                17,
-                {
-                    duration:1
-                }
-            );
-
-
-            markers[
-                shop.id
-            ].openPopup();
-
+            
+            map.flyTo([shop.lat, shop.lng], 17, { duration: 1.2 });
+            markers[shop.id].openPopup();
         };
 
-
         list.appendChild(card);
-
     });
-
 }
 
-
-
 /* ==========================================
-   INITIAL
+   INITIAL RENDER & SEARCH
 ========================================== */
-
 displayShops(shops);
 
-
-
-/* ==========================================
-   SEARCH
-========================================== */
-
-document
-.getElementById("search")
-.addEventListener(
-    "input",
-    function(){
-
-        const keyword =
-            this.value
-            .toLowerCase()
-            .trim();
-
-
-        const filtered =
-            shops.filter(shop =>
-
-                shop.name
-                .toLowerCase()
-                .includes(keyword)
-
-                ||
-
-                shop.category
-                .toLowerCase()
-                .includes(keyword)
-
-                ||
-
-                shop.address
-                .toLowerCase()
-                .includes(keyword)
-
-            );
-
-
-        displayShops(filtered);
-
-    }
-);
-
-
+document.getElementById("search").addEventListener("input", function() {
+    const keyword = this.value.toLowerCase().trim();
+    const filtered = shops.filter(shop =>
+        shop.name.toLowerCase().includes(keyword) ||
+        shop.category.toLowerCase().includes(keyword) ||
+        shop.address.toLowerCase().includes(keyword)
+    );
+    displayShops(filtered);
+});
 
 /* ==========================================
    USER LOCATION
 ========================================== */
-
 let userMarker = null;
 
+function findNearby() {
+    const status = document.getElementById("locationStatus");
 
-function findNearby(){
-
-    const status =
-        document.getElementById(
-            "locationStatus"
-        );
-
-
-    if(!navigator.geolocation){
-
-        status.innerText =
-            "Your browser does not support location.";
-
+    if (!navigator.geolocation) {
+        status.innerText = "⚠️ Your browser does not support location services.";
         return;
     }
 
-
-    status.innerText =
-        "Getting your location...";
-
+    status.innerText = "📡 Getting your location...";
 
     navigator.geolocation.getCurrentPosition(
+        function(position) {
+            const userLat = position.coords.latitude;
+            const userLng = position.coords.longitude;
 
-        function(position){
+            if (userMarker) map.removeLayer(userMarker);
 
-            const userLat =
-                position.coords.latitude;
+            // Custom user location icon
+            const userIcon = L.divIcon({
+                className: 'custom-user-marker',
+                html: '<div style="background:#2563eb; width:16px; height:16px; border-radius:50%; border:3px solid white; box-shadow:0 2px 6px rgba(0,0,0,0.3);"></div>',
+                iconSize: [22, 22],
+                iconAnchor: [11, 11]
+            });
 
-            const userLng =
-                position.coords.longitude;
-
-
-            /* USER MARKER */
-
-            if(userMarker){
-
-                map.removeLayer(
-                    userMarker
-                );
-
-            }
-
-
-            userMarker =
-                L.marker(
-                    [userLat,userLng]
-                )
+            userMarker = L.marker([userLat, userLng], { icon: userIcon })
                 .addTo(map)
-                .bindPopup(
-                    "<strong>📍 You are here</strong>"
-                );
-
-
+                .bindPopup("<strong>📍 You are here</strong>");
+            
             userMarker.openPopup();
 
+            const nearby = shops.map(shop => ({
+                ...shop,
+                distance: distanceKm(userLat, userLng, shop.lat, shop.lng)
+            }));
 
-            /* CALCULATE DISTANCE */
-
-            const nearby =
-                shops.map(shop => {
-
-                    return {
-
-                        ...shop,
-
-                        distance:
-                        distanceKm(
-                            userLat,
-                            userLng,
-                            shop.lat,
-                            shop.lng
-                        )
-
-                    };
-
-                });
-
-
-            /* SORT NEAREST FIRST */
-
-            nearby.sort(
-                (a,b) =>
-                a.distance -
-                b.distance
-            );
-
-
-            /* DISPLAY */
-
+            nearby.sort((a, b) => a.distance - b.distance);
             displayShops(nearby);
 
-
-            /* MAP */
-
-            map.flyTo(
-                [userLat,userLng],
-                14,
-                {
-                    duration:1
-                }
-            );
-
-
-            status.innerText =
-                "📍 Showing nearest shops to your location";
-
+            map.flyTo([userLat, userLng], 14, { duration: 1.2 });
+            status.innerText = "✅ Showing nearest shops to your location";
         },
-
-
-        function(error){
-
-            if(error.code === 1){
-
-                status.innerText =
-                    "Location permission was denied.";
-
-            }
-
-            else if(error.code === 2){
-
-                status.innerText =
-                    "Your location could not be detected.";
-
-            }
-
-            else{
-
-                status.innerText =
-                    "Unable to get your location.";
-
-            }
-
+        function(error) {
+            if (error.code === 1) status.innerText = "⚠️ Location permission was denied.";
+            else if (error.code === 2) status.innerText = "⚠️ Your location could not be detected.";
+            else status.innerText = "⚠️ Unable to get your location.";
         },
-
-        {
-            enableHighAccuracy:true,
-            timeout:10000,
-            maximumAge:0
-        }
-
+        { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 }
     );
-
 }
-
 </script>
 
 </body>
