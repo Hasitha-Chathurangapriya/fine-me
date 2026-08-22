@@ -319,6 +319,42 @@ body {
     📲 Install App
 </button>
 
+        <button id="downloadAppBtn">
+    📲 Download App
+</button>
+
+        <script>
+let deferredPrompt = null;
+
+const downloadBtn = document.getElementById("downloadAppBtn");
+
+window.addEventListener("beforeinstallprompt", (e) => {
+    e.preventDefault();
+    deferredPrompt = e;
+});
+
+downloadBtn.addEventListener("click", async () => {
+
+    if (deferredPrompt) {
+        deferredPrompt.prompt();
+
+        const { outcome } = await deferredPrompt.userChoice;
+
+        console.log("Install result:", outcome);
+
+        deferredPrompt = null;
+
+    } else {
+        alert(
+            "To install SME Shop Network:\n\n" +
+            "1. Tap the ⋮ menu in Chrome\n" +
+            "2. Select 'Install app' or 'Add to Home screen'\n" +
+            "3. Confirm installation"
+        );
+    }
+});
+</script>
+
 <script>
 let deferredPrompt;
 
