@@ -141,7 +141,7 @@ body {
 .category-filters {
     display: flex; gap: 8px; overflow-x: auto; padding: 4px 4px 16px;
     max-width: 700px; margin: 0 auto 24px;
-    scrollbar-width: none; /* Firefox */
+    scrollbar-width: none;
 }
 .category-filters::-webkit-scrollbar { display: none; }
 
@@ -274,6 +274,31 @@ body {
 .empty-state { text-align: center; padding: 40px 20px; color: var(--text-muted); }
 .empty-state-icon { font-size: 48px; margin-bottom: 12px; opacity: 0.5; }
 
+/* PWA INSTALL BUTTON */
+#installPwaBtn {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    z-index: 99999;
+    display: none; /* Hidden by default, shown via JS when installable */
+    align-items: center;
+    gap: 8px;
+    padding: 14px 22px;
+    border: none;
+    border-radius: 12px;
+    background: var(--primary);
+    color: white;
+    font-size: 16px;
+    font-weight: 600;
+    cursor: pointer;
+    box-shadow: 0 8px 25px rgba(37, 99, 235, 0.4);
+    transition: transform 0.2s ease, background 0.2s ease;
+}
+#installPwaBtn:hover {
+    background: var(--primary-hover);
+    transform: translateY(-2px);
+}
+
 /* MOBILE RESPONSIVENESS */
 @media (max-width: 900px) {
     .sme-section { padding: 20px 16px; }
@@ -315,112 +340,6 @@ body {
             </button>
         </div>
 
-        <!-- <button id="installBtn" style="display:none;">
-    📲 Install App
-</button> -->
-
-        <button id="downloadAppBtn">
-    📲 Download App
-</button>
-
-        <script>
-let deferredPrompt = null;
-
-const downloadBtn = document.getElementById("downloadAppBtn");
-
-window.addEventListener("beforeinstallprompt", (e) => {
-    e.preventDefault();
-    deferredPrompt = e;
-});
-
-downloadBtn.addEventListener("click", async () => {
-
-    if (deferredPrompt) {
-        deferredPrompt.prompt();
-
-        const { outcome } = await deferredPrompt.userChoice;
-
-        console.log("Install result:", outcome);
-
-        deferredPrompt = null;
-
-    } else {
-        alert(
-            "To install SME Shop Network:\n\n" +
-            "1. Tap the ⋮ menu in Chrome\n" +
-            "2. Select 'Install app' or 'Add to Home screen'\n" +
-            "3. Confirm installation"
-        );
-    }
-});
-</script>
-
-<!-- <script>
-let deferredPrompt;
-
-window.addEventListener("beforeinstallprompt", (e) => {
-    e.preventDefault();
-    deferredPrompt = e;
-
-    document.getElementById("installBtn").style.display = "block";
-});
-
-document.getElementById("installBtn").addEventListener("click", async () => {
-    if (!deferredPrompt) return;
-
-    deferredPrompt.prompt();
-
-    const result = await deferredPrompt.userChoice;
-    console.log(result.outcome);
-
-    deferredPrompt = null;
-    document.getElementById("installBtn").style.display = "none";
-});
-</script> -->
-        <button
-  id="downloadAppBtn"
-  style="
-    position:fixed;
-    bottom:20px;
-    right:20px;
-    z-index:99999;
-    display:block;
-    padding:14px 22px;
-    border:none;
-    border-radius:12px;
-    background:#2563eb;
-    color:white;
-    font-size:16px;
-    font-weight:600;
-    cursor:pointer;
-    box-shadow:0 8px 25px rgba(0,0,0,.25);
-  "
->
-  📲 Download App
-</button>
-
-<script>
-const downloadBtn = document.getElementById("downloadAppBtn");
-
-downloadBtn.addEventListener("click", async () => {
-    if (window.deferredPrompt) {
-        window.deferredPrompt.prompt();
-        await window.deferredPrompt.userChoice;
-        window.deferredPrompt = null;
-    } else {
-        alert(
-          "Install App:\n\n" +
-          "Chrome ⋮ → Install app / Add to Home screen"
-        );
-    }
-});
-
-window.addEventListener("beforeinstallprompt", (e) => {
-    e.preventDefault();
-    window.deferredPrompt = e;
-});
-</script>
-
         <!-- CATEGORY CHIPS -->
         <div class="category-filters" id="categoryFilters">
             <button class="chip active" data-category="All">All Shops</button>
@@ -441,6 +360,11 @@ window.addEventListener("beforeinstallprompt", (e) => {
 
 <div class="toast-container" id="toastContainer"></div>
 
+<!-- PWA INSTALL BUTTON -->
+<button id="installPwaBtn">
+    📲 Install App
+</button>
+
 <!-- Leaflet & MarkerCluster JS -->
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 <script src="https://unpkg.com/leaflet.markercluster@1.5.3/dist/leaflet.markercluster.js"></script>
@@ -455,7 +379,6 @@ let userMarker = null;
 let markersCluster = null;
 let searchDebounceTimer;
 
-// Enhanced mock data with ratings, status, and contact info
 const shops = [
     { id: 1, name: "Bambalapitiya Fashion Hub", category: "Fashion", address: "Galle Road, Bambalapitiya", lat: 6.8918, lng: 79.8567, rating: 4.5, isOpen: true, phone: "+94112500001" },
     { id: 2, name: "Colombo Tech Solutions", category: "Electronics", address: "Duplication Road, Colombo 04", lat: 6.8915, lng: 79.8559, rating: 4.8, isOpen: true, phone: "+94112500002" },
@@ -488,7 +411,6 @@ let map, tileLayer;
 function initMap() {
     map = L.map("map").setView([6.8947, 79.8560], 14);
     
-    // Marker Cluster Group
     markersCluster = L.markerClusterGroup({
         maxClusterRadius: 50,
         spiderfyOnMaxZoom: true,
@@ -510,7 +432,7 @@ function initMap() {
             </div>
         `);
         markersCluster.addLayer(marker);
-        shop.marker = marker; // Reference for clicking
+        shop.marker = marker;
     });
 
     map.addLayer(markersCluster);
@@ -554,7 +476,6 @@ function renderCategoryChips() {
     const categories = ['All', ...new Set(shops.map(s => s.category))];
     const container = document.getElementById('categoryFilters');
     
-    // Keep the "All" button, remove others to rebuild
     container.innerHTML = '<button class="chip active" data-category="All">All Shops</button>';
     
     categories.slice(1).forEach(cat => {
@@ -584,7 +505,7 @@ function setupSearch() {
     searchInput.addEventListener('input', (e) => {
         clearBtn.classList.toggle('visible', e.target.value.length > 0);
         clearTimeout(searchDebounceTimer);
-        searchDebounceTimer = setTimeout(applyFilters, 250); // Debounce for performance
+        searchDebounceTimer = setTimeout(applyFilters, 250);
     });
 }
 
@@ -625,11 +546,10 @@ function displayShops(data) {
                 <h3>No shops found</h3>
                 <p>Try adjusting your search or category filter.</p>
             </div>`;
-        markersCluster.clearLayers(); // Clear map too
+        markersCluster.clearLayers();
         return;
     }
 
-    // Re-add only filtered markers to cluster
     markersCluster.clearLayers();
     
     data.forEach((shop, index) => {
@@ -661,17 +581,14 @@ function displayShops(data) {
     });
 }
 
-// Global function for the button onclick
 window.focusShop = function(shopId, event) {
-    event.stopPropagation(); // Prevent card click trigger
+    event.stopPropagation();
     const shop = shops.find(s => s.id === shopId);
     if (!shop) return;
 
-    // Highlight card
     document.querySelectorAll(".shop-card").forEach(c => c.classList.remove("active"));
     event.target.closest('.shop-card').classList.add("active");
 
-    // Fly to map
     map.flyTo([shop.lat, shop.lng], 17, { duration: 1.2 });
     shop.marker.openPopup();
 };
@@ -707,7 +624,6 @@ function findNearby() {
             
             userMarker.openPopup();
 
-            // Calculate distances
             const nearby = shops.map(shop => ({
                 ...shop,
                 distance: distanceKm(userLat, userLng, shop.lat, shop.lng)
@@ -759,11 +675,52 @@ function showToast(message, type = 'success') {
 }
 </script>
 
+<!-- ==========================================
+   PWA INSTALL LOGIC (FIXED)
+========================================== -->
+<script>
+let deferredPrompt = null;
+const installBtn = document.getElementById("installPwaBtn");
+
+// Listen for the browser's install prompt event
+window.addEventListener("beforeinstallprompt", (e) => {
+    e.preventDefault(); // Prevent the mini-infobar from appearing automatically
+    deferredPrompt = e;
+    
+    // Show the button ONLY when the app is installable
+    installBtn.style.display = "flex";
+});
+
+// Handle button click
+installBtn.addEventListener("click", async () => {
+    if (!deferredPrompt) return;
+    
+    deferredPrompt.prompt(); // Show the install prompt
+    const { outcome } = await deferredPrompt.userChoice;
+    
+    if (outcome === "accepted") {
+        console.log("User accepted the install prompt");
+    } else {
+        console.log("User dismissed the install prompt");
+    }
+    
+    // Hide button after user makes a choice
+    deferredPrompt = null;
+    installBtn.style.display = "none";
+});
+
+// Automatically hide the button if the app is already installed (standalone mode)
+if (window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone === true) {
+    installBtn.style.display = "none";
+}
+</script>
+
+<!-- Service Worker Registration -->
 <script>
 if ("serviceWorker" in navigator) {
     window.addEventListener("load", () => {
         navigator.serviceWorker.register("./sw.js")
-            .then(() => console.log("PWA service worker registered"))
+            .then(() => console.log("PWA service worker registered successfully"))
             .catch(err => console.error("Service worker registration failed:", err));
     });
 }
